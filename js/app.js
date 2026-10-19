@@ -38,6 +38,16 @@
 
   var SPOON_PATH = '<ellipse cx="8" cy="8" rx="6" ry="7.5"/><rect x="6.5" y="14" width="3" height="17" rx="1.5"/>';
 
+  // Empty-state illustration: three spoons resting in a cup.
+  var EMPTY_ART = '<svg class="empty-art" aria-hidden="true" viewBox="0 0 160 120">' +
+    '<ellipse cx="80" cy="108" rx="54" ry="7" class="ea-shadow"/>' +
+    '<g transform="rotate(-18 62 52)"><ellipse cx="62" cy="22" rx="9" ry="12" class="ea-spoon a"/><rect x="59.5" y="31" width="5" height="44" rx="2.5" class="ea-spoon a"/></g>' +
+    '<g><ellipse cx="80" cy="16" rx="9" ry="12" class="ea-spoon b"/><rect x="77.5" y="25" width="5" height="50" rx="2.5" class="ea-spoon b"/></g>' +
+    '<g transform="rotate(18 98 52)"><ellipse cx="98" cy="22" rx="9" ry="12" class="ea-spoon c"/><rect x="95.5" y="31" width="5" height="44" rx="2.5" class="ea-spoon c"/></g>' +
+    '<path d="M40 58h80l-8 44a8 8 0 0 1-8 6H56a8 8 0 0 1-8-6z" class="ea-cup"/>' +
+    '<path d="M120 66h6a10 10 0 0 1 0 20h-9" class="ea-handle"/>' +
+    '<path d="M46 72h68" class="ea-band"/></svg>';
+
   /* ---------- helpers ---------- */
 
   function $(sel, ctx) { return (ctx || document).querySelector(sel); }
@@ -267,12 +277,16 @@
   function renderToday() {
     var spoons = state.day.spoons;
 
-    $('#today-date').textContent = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+    var now = new Date();
+    var hour = now.getHours();
+    $('#today-date').textContent = now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+    $('#h-today').textContent = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 
     $('#presets').innerHTML = PRESETS.map(function (p) {
       var id = 'preset-' + p.v;
-      return '<div class="seg"><input type="radio" name="preset" id="' + id + '" value="' + p.v + '" data-key="' + id + '"' +
-        (spoons === p.v ? ' checked' : '') + '><label for="' + id + '"><span class="seg-label">' + p.label + '</span><span class="seg-num">' + p.v + '<span class="sr-only"> spoons</span></span></label></div>';
+      return '<div class="preset"><input type="radio" name="preset" id="' + id + '" value="' + p.v + '" data-key="' + id + '"' +
+        (spoons === p.v ? ' checked' : '') + '><label for="' + id + '"><span class="p-num" aria-hidden="true">' + p.v + '</span>' +
+        '<span class="p-label">' + p.label + '<span class="sr-only">, ' + p.v + ' spoons</span></span></label></div>';
     }).join('');
 
     var count = $('#spoon-count');
@@ -280,18 +294,19 @@
 
     var out = $('#today-plan');
     if (!state.tasks.length) {
-      out.innerHTML = '<div class="empty"><h2>No tasks yet</h2><p>Add what’s on your mind, and Spoonful will work out what fits today.</p>' +
+      out.innerHTML = '<div class="card empty">' + EMPTY_ART + '<h2>Nothing on your plate yet</h2><p>Add what’s on your mind, and Spoonful will work out what fits today’s energy.</p>' +
         '<div class="button-row center"><button type="button" class="btn primary" data-nav="tasks" data-key="empty-add">Add your first task</button>' +
         '<button type="button" class="btn" data-action="load-sample" data-key="empty-sample">Try it with example tasks</button></div></div>';
       return;
     }
     if (spoons == null) {
-      out.innerHTML = '<div class="empty"><p>Pick your energy above to see today’s plan.</p></div>';
+      out.innerHTML = '<div class="card empty slim"><p>Pick your energy above, and today’s plan will appear here.</p></div>';
       return;
     }
 
     var plan = currentPlan();
-    var html = '<section class="card" aria-labelledby="h-plan"><div class="card-head"><h2 id="h-plan">Today’s plan</h2></div>' + spoonMeter(plan);
+    var html = '<section class="card plan-card" aria-labelledby="h-plan"><div class="card-head"><h2 id="h-plan">Today’s plan</h2>' +
+      '<span class="head-pill">' + spoonText(plan.budget) + '</span></div>' + spoonMeter(plan);
 
     if (plan.budget <= 2) html += '<p class="note-box">Low-energy day. Only the essentials are planned. Being gentle with yourself counts as progress.</p>';
 
@@ -306,7 +321,8 @@
         }
         return '<li class="row plan-item"><span class="num" aria-hidden="true">' + (i + 1) + '</span>' + row(t, p.spoons, sub) + '</li>';
       }).join('') + '</ol>' +
-        '<button type="button" class="btn primary block" data-nav="focus" data-key="start-focus">Start Focus: one thing at a time</button>';
+        '<button type="button" class="btn primary block cta" data-nav="focus" data-key="start-focus"><span>Start Focus<span class="cta-more">: one thing at a time</span></span>' +
+        '<svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
     } else {
       html += '<p class="quiet">' + (plan.available <= 0 ? 'Your energy for today is used up. That’s a full day. Rest now.' : 'Nothing fits right now, and that’s okay.') + '</p>';
     }
@@ -349,8 +365,11 @@
   function renderCostOptions() {
     $('#cost-options').innerHTML = COSTS.map(function (c) {
       var id = 'cost-' + c.v;
-      return '<div class="seg"><input type="radio" name="cost" id="' + id + '" value="' + c.v + '"' + (c.v === 2 ? ' checked' : '') + ' aria-describedby="cost-hint">' +
-        '<label for="' + id + '"><span class="seg-label">' + c.label + '</span><span class="seg-num">' + c.v + '<span class="sr-only"> ' + (c.v === 1 ? 'spoon' : 'spoons') + '</span></span></label></div>';
+      var icons = '';
+      for (var i = 0; i < c.v; i++) icons += '<svg viewBox="0 0 16 32">' + SPOON_PATH + '</svg>';
+      return '<div class="cost-opt"><input type="radio" name="cost" id="' + id + '" value="' + c.v + '"' + (c.v === 2 ? ' checked' : '') + ' aria-describedby="cost-hint">' +
+        '<label for="' + id + '"><span class="cost-icons" aria-hidden="true">' + icons + '</span><span class="cost-label">' + c.label +
+        '<span class="sr-only">, ' + spoonText(c.v) + '</span></span></label></div>';
     }).join('');
     updateCostHint();
   }
@@ -460,6 +479,7 @@
     var position = '<span class="dots" aria-hidden="true">' + queue.map(function (q, i) { return '<i' + (i === 0 ? ' class="on"' : '') + '></i>'; }).join('') + '</span>';
 
     out.innerHTML = '<div class="card focus-card">' +
+      '<div class="orb" aria-hidden="true"><span></span></div>' +
       '<p class="eyebrow">' + eyebrow + '</p>' +
       '<h2 id="focus-title" class="focus-title" tabindex="-1">' + esc(itemTitle(item)) + '</h2>' +
       '<div class="focus-meta">' + mustTag(t) + dueTag(t) + cost(item.step ? P.stepCost(t) : t.cost) + '</div>' +

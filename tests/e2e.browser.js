@@ -24,11 +24,12 @@ const log = (...a) => console.log(...a);
   const text = s => page.$eval(s, el => el.innerText);
   // Gallery screenshots: un-stick the header and hide the toast so full-page captures look right.
   const shot = async (file, full = true) => {
-    const h = await page.addStyleTag({ content: '.topbar{position:static!important}.toast{display:none!important}' });
+    const h = await page.addStyleTag({ content: 'body{position:relative;min-height:100vh}.toast{display:none!important}@media(min-width:960px){.shell-nav{position:absolute!important;bottom:0!important}}@media(max-width:959px){.shell-nav{position:static!important}.shell-nav nav{position:absolute!important}}' });
     await page.screenshot({ path: OUT + '/' + file, fullPage: full });
     await h.evaluate(e => e.remove());
   };
   const axe = async (label) => {
+    await new Promise(r => setTimeout(r, 500)); // let colour transitions finish
     await page.evaluate(axeSrc);
     const r = await page.evaluate(() => axe.run(document, { runOnly: ['wcag2a','wcag2aa','wcag21aa','best-practice'] }));
     log(`[axe ${label}] violations: ${r.violations.length}`);

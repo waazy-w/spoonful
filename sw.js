@@ -1,5 +1,5 @@
 // Offline support: cache the app shell, serve cache-first, refresh in the background.
-var CACHE = 'spoonful-v2';
+var CACHE = 'spoonful-v3';
 var SHELL = ['./', 'index.html', 'styles.css', 'js/planner.js', 'js/store.js', 'js/app.js', 'icon.svg', 'manifest.webmanifest'];
 
 self.addEventListener('install', function (e) {
