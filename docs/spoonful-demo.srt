@@ -1,123 +1,123 @@
 1
-00:00:00,150 --> 00:00:04,603
+00:00:03,318 --> 00:00:07,708
 Every to-do app assumes you have the same energy every day.
 
 2
-00:00:04,603 --> 00:00:10,943
+00:00:07,708 --> 00:00:13,958
 For students living with chronic illness, ADHD, or depression, that just isn't true.
 
 3
-00:00:10,943 --> 00:00:15,774
+00:00:13,958 --> 00:00:18,720
 On a bad day, the list doesn't shrink. It just turns into guilt.
 
 4
-00:00:16,374 --> 00:00:18,964
+00:00:19,311 --> 00:00:21,865
 Spoonful is built on spoon theory.
 
 5
-00:00:18,964 --> 00:00:24,373
+00:00:21,865 --> 00:00:27,197
 You get a limited number of spoons each day, and every task costs some.
 
 6
-00:00:24,373 --> 00:00:30,163
+00:00:27,197 --> 00:00:32,905
 So Spoonful starts with one question: how much energy do you have right now?
 
 7
-00:00:30,773 --> 00:00:33,046
+00:00:33,506 --> 00:00:35,747
 Here's a typical student week.
 
 8
-00:00:33,046 --> 00:00:38,199
+00:00:35,747 --> 00:00:40,827
 On a great day, Spoonful plans the must-dos and the deadlines first:
 
 9
-00:00:38,199 --> 00:00:43,580
+00:00:40,827 --> 00:00:46,131
 the doctor's appointment, the email due today, even the big lab report.
 
 10
-00:00:43,580 --> 00:00:46,687
+00:00:46,131 --> 00:00:49,194
 And it always keeps one spoon in reserve.
 
 11
-00:00:47,300 --> 00:00:51,934
+00:00:49,798 --> 00:00:54,367
 Same list. Rough day. Now only two things fit.
 
 12
-00:00:51,934 --> 00:00:56,468
+00:00:54,367 --> 00:00:58,836
 Everything else is still here, with a reason:
 
 13
-00:00:56,468 --> 00:01:01,606
+00:00:58,836 --> 00:01:03,901
 "Your energy is already spoken for. This can wait."
 
 14
-00:01:01,606 --> 00:01:04,024
+00:01:03,901 --> 00:01:06,285
 No red badges. No shame.
 
 15
-00:01:04,626 --> 00:01:10,102
+00:01:06,878 --> 00:01:12,277
 The lab report is due tomorrow, but 5 spoons will never fit a low day.
 
 16
-00:01:10,102 --> 00:01:15,187
+00:01:12,277 --> 00:01:17,290
 So we break it down, with built-in suggestions that work offline.
 
 17
-00:01:15,187 --> 00:01:19,568
+00:01:17,290 --> 00:01:21,608
 Now, on an okay day, Spoonful plans just the first step.
 
 18
-00:01:19,568 --> 00:01:22,150
+00:01:21,608 --> 00:01:24,153
 The deadline still moves forward.
 
 19
-00:01:22,751 --> 00:01:26,339
+00:01:24,746 --> 00:01:28,283
 Focus mode shows one thing at a time.
 
 20
-00:01:26,339 --> 00:01:28,958
+00:01:28,283 --> 00:01:30,864
 Done. Not now. Or: too big?
 
 21
-00:01:28,958 --> 00:01:35,940
+00:01:30,864 --> 00:01:37,748
 It can read each step aloud, and the gentle timer counts up, never down.
 
 22
-00:01:36,547 --> 00:01:38,828
+00:01:38,346 --> 00:01:40,595
 Accessibility is built in:
 
 23
-00:01:38,828 --> 00:01:44,531
+00:01:40,595 --> 00:01:46,217
 larger text, dyslexia-friendly spacing, high contrast, dark mode,
 
 24
-00:01:44,531 --> 00:01:46,813
+00:01:46,217 --> 00:01:48,466
 and full keyboard support.
 
 25
-00:01:46,813 --> 00:01:51,551
+00:01:48,466 --> 00:01:53,137
 Our automated WCAG 2.1 AA audit finds zero violations.
 
 26
-00:01:52,155 --> 00:01:56,933
+00:01:53,732 --> 00:01:58,443
 Under the hood, the planner is a pure, tested engine:
 
 27
-00:01:56,933 --> 00:02:01,261
+00:01:58,443 --> 00:02:02,709
 16 unit tests plus a browser accessibility test.
 
 28
-00:02:01,261 --> 00:02:04,868
+00:02:02,709 --> 00:02:06,264
 No server. No account. It works offline.
 
 29
-00:02:04,868 --> 00:02:08,294
+00:02:06,264 --> 00:02:09,642
 Your health data stays on your device.
 
 30
-00:02:08,905 --> 00:02:14,231
+00:02:10,245 --> 00:02:15,495
 Spoonful. Plan by energy, not by hours.
 
 31
-00:02:14,231 --> 00:02:18,874
+00:02:15,495 --> 00:02:20,072
 Try it: waazy-w.github.io/spoonful
