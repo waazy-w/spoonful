@@ -1,0 +1,11 @@
+{
+  "name": "spoonful",
+  "version": "1.0.0",
+  "description": "An accessible, offline-first day planner that plans by energy (spoons), not hours.",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test tests/planner.test.js",
+    "start": "npx --yes http-server -p 8080 -c-1 ."
+  }
+}
