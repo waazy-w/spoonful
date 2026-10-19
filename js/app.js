@@ -15,25 +15,28 @@
   var toastHandle = null;
 
   var COSTS = [
-    { v: 1, label: 'Tiny', hint: 'a few minutes, barely any effort' },
-    { v: 2, label: 'Small', hint: 'short, but needs some focus' },
-    { v: 3, label: 'Medium', hint: 'a solid block of effort' },
-    { v: 4, label: 'Big', hint: 'draining, so plan rest after' },
-    { v: 5, label: 'Huge', hint: 'a whole good day’s energy' }
+    { v: 1, label: 'Tiny', hint: 'A few minutes, barely any effort.' },
+    { v: 2, label: 'Small', hint: 'Short, but needs some focus.' },
+    { v: 3, label: 'Medium', hint: 'A solid block of effort.' },
+    { v: 4, label: 'Big', hint: 'Draining, so plan rest after.' },
+    { v: 5, label: 'Huge', hint: 'A whole good day’s energy.' }
   ];
   var PRESETS = [
-    { v: 2, label: 'Running on empty' },
+    { v: 2, label: 'Empty' },
     { v: 4, label: 'Low' },
     { v: 6, label: 'Okay' },
     { v: 8, label: 'Good' },
     { v: 10, label: 'Great' }
   ];
-  var REASONS = {
-    'too-big': 'Too big for the energy you have today. Break it into small steps and you can still make a start.',
-    'step-too-big': 'Even one step is more than you have left. Try smaller steps, or let it wait.',
-    'no-room': 'Your energy is already spoken for today. This can wait.',
-    'rest': 'Today is for resting. Rest is part of the plan.'
-  };
+  // Deferred tasks are grouped by reason, so each explanation is written once.
+  var GROUPS = [
+    { reason: 'too-big', title: 'Too big for today', note: 'Break these into small steps and part of them can fit, even today.', action: true },
+    { reason: 'step-too-big', title: 'Steps still too big', note: 'Even one step is more than you have left. Try smaller steps, or let it wait.', action: true },
+    { reason: 'no-room', title: 'Can wait', note: 'Your energy is already spoken for today. These can wait.', collapse: true },
+    { reason: 'rest', title: 'Resting today', note: 'Today is for resting. Rest is part of the plan.', collapse: true }
+  ];
+
+  var SPOON_PATH = '<ellipse cx="8" cy="8" rx="6" ry="7.5"/><rect x="6.5" y="14" width="3" height="17" rx="1.5"/>';
 
   /* ---------- helpers ---------- */
 
@@ -55,27 +58,24 @@
     return r + (r === 1 ? ' spoon' : ' spoons');
   }
 
-  function badge(n) {
+  function cost(n) {
     var r = P.roundHalf(n);
-    return '<span class="badge spoon-badge"><span aria-hidden="true">🥄 ' + r + '</span><span class="sr-only">' + spoonText(r) + '</span></span>';
+    return '<span class="cost"><svg class="mini-spoon" aria-hidden="true" viewBox="0 0 16 32">' + SPOON_PATH + '</svg>' +
+      '<span aria-hidden="true">' + r + '</span><span class="sr-only">' + spoonText(r) + '</span></span>';
   }
 
-  function dueLabel(task) {
+  function dueTag(task) {
     var d = P.daysUntil(task.due, new Date());
     if (d === null) return '';
-    var text, cls = 'badge due';
-    if (d < 0) { text = 'Overdue'; cls += ' urgent'; }
-    else if (d === 0) { text = 'Due today'; cls += ' urgent'; }
-    else if (d === 1) text = 'Due tomorrow';
-    else {
-      var parts = task.due.split('-').map(Number);
-      text = 'Due ' + new Date(parts[0], parts[1] - 1, parts[2]).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
-    }
-    return '<span class="' + cls + '">' + text + '</span>';
+    if (d < 0) return '<span class="tag urgent">Overdue</span>';
+    if (d === 0) return '<span class="tag urgent">Due today</span>';
+    if (d === 1) return '<span class="tag">Due tomorrow</span>';
+    var parts = task.due.split('-').map(Number);
+    return '<span class="tag">Due ' + new Date(parts[0], parts[1] - 1, parts[2]).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }) + '</span>';
   }
 
-  function mustLabel(task) {
-    return task.mustDo ? '<span class="badge must">Must do</span>' : '';
+  function mustTag(task) {
+    return task.mustDo ? '<span class="tag urgent">Must do</span>' : '';
   }
 
   function findTask(id) {
@@ -148,12 +148,12 @@
   }
 
   function completeTask(task) {
-    var cost = P.remainingCost(task);
+    var spoons = P.remainingCost(task);
     var ids = [];
     task.steps.forEach(function (s) { if (!s.done) { s.done = true; ids.push(s.id); } });
     task.done = true;
     task.doneAt = Date.now();
-    logEntry(task, null, cost, ids);
+    logEntry(task, null, spoons, ids);
   }
 
   function completeStep(task, step) {
@@ -224,19 +224,55 @@
 
   function renderNav() {
     $all('[data-nav]').forEach(function (b) {
+      if (!b.classList.contains('tab')) return;
       if (b.getAttribute('data-nav') === view) b.setAttribute('aria-current', 'page');
       else b.removeAttribute('aria-current');
     });
     $all('.view').forEach(function (v) { v.hidden = v.getAttribute('data-view') !== view; });
   }
 
+  /** A row of spoon icons: used, planned, free, and the reserve. */
+  function spoonMeter(plan) {
+    var free = Math.max(0, P.roundHalf(plan.budget - plan.reserve - plan.spent - plan.planCost));
+    var dots = '';
+    for (var i = 0; i < Math.min(12, plan.budget); i++) {
+      var mid = i + 0.5, cls;
+      if (mid < plan.spent) cls = 'used';
+      else if (mid < plan.spent + plan.planCost) cls = 'planned';
+      else if (mid >= plan.budget - plan.reserve) cls = 'reserve';
+      else cls = 'free';
+      dots += '<svg class="spoon ' + cls + '" viewBox="0 0 16 32">' + SPOON_PATH + '</svg>';
+    }
+    var legend = [];
+    if (plan.spent) legend.push('<span><i class="key used"></i>' + P.roundHalf(plan.spent) + ' used</span>');
+    legend.push('<span><i class="key planned"></i>' + plan.planCost + ' planned</span>');
+    if (free) legend.push('<span><i class="key free"></i>' + free + ' free</span>');
+    if (plan.reserve) legend.push('<span><i class="key reserve"></i>' + plan.reserve + ' in reserve</span>');
+
+    var sentence = 'You have ' + spoonText(plan.budget) + '.' +
+      (plan.spent ? ' You’ve used ' + spoonText(plan.spent) + '.' : '') +
+      ' The plan uses ' + spoonText(plan.planCost) + '.' +
+      (plan.reserve ? ' ' + spoonText(plan.reserve) + ' is kept in reserve for the unexpected.' : '');
+
+    return '<div class="meter" aria-hidden="true">' + dots + '</div>' +
+      '<p class="legend" aria-hidden="true">' + legend.join('') + '</p>' +
+      '<p class="sr-only">' + sentence + '</p>';
+  }
+
+  function row(t, spoons, extra) {
+    return '<div class="row-main"><span class="title">' + esc(t.title) + '</span>' + (extra || '') + '</div>' +
+      '<div class="row-meta">' + mustTag(t) + dueTag(t) + cost(spoons) + '</div>';
+  }
+
   function renderToday() {
     var spoons = state.day.spoons;
 
+    $('#today-date').textContent = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+
     $('#presets').innerHTML = PRESETS.map(function (p) {
       var id = 'preset-' + p.v;
-      return '<div class="preset"><input type="radio" name="preset" id="' + id + '" value="' + p.v + '" data-key="' + id + '"' +
-        (spoons === p.v ? ' checked' : '') + '><label for="' + id + '"><strong>' + p.label + '</strong><span>' + spoonText(p.v) + '</span></label></div>';
+      return '<div class="seg"><input type="radio" name="preset" id="' + id + '" value="' + p.v + '" data-key="' + id + '"' +
+        (spoons === p.v ? ' checked' : '') + '><label for="' + id + '"><span class="seg-label">' + p.label + '</span><span class="seg-num">' + p.v + '<span class="sr-only"> spoons</span></span></label></div>';
     }).join('');
 
     var count = $('#spoon-count');
@@ -244,70 +280,67 @@
 
     var out = $('#today-plan');
     if (!state.tasks.length) {
-      out.innerHTML = '<div class="card empty"><h2>No tasks yet</h2><p>Add the things on your mind, and Spoonful will work out what fits today.</p>' +
-        '<div class="button-row"><button type="button" class="btn primary" data-nav="tasks" data-key="empty-add">Add your first task</button>' +
+      out.innerHTML = '<div class="empty"><h2>No tasks yet</h2><p>Add what’s on your mind, and Spoonful will work out what fits today.</p>' +
+        '<div class="button-row center"><button type="button" class="btn primary" data-nav="tasks" data-key="empty-add">Add your first task</button>' +
         '<button type="button" class="btn" data-action="load-sample" data-key="empty-sample">Try it with example tasks</button></div></div>';
       return;
     }
     if (spoons == null) {
-      out.innerHTML = '<div class="card empty"><h2>Check in first</h2><p>Pick how much energy you have above, and your plan for today will appear here.</p></div>';
+      out.innerHTML = '<div class="empty"><p>Pick your energy above to see today’s plan.</p></div>';
       return;
     }
 
     var plan = currentPlan();
-    var used = plan.spent;
-    var html = '';
+    var html = '<section class="card" aria-labelledby="h-plan"><div class="card-head"><h2 id="h-plan">Today’s plan</h2></div>' + spoonMeter(plan);
 
-    // Summary + energy bar
-    var pctSpent = plan.budget ? Math.min(100, used / plan.budget * 100) : 0;
-    var pctPlan = plan.budget ? Math.min(100 - pctSpent, plan.planCost / plan.budget * 100) : 0;
-    var pctReserve = plan.budget ? plan.reserve / plan.budget * 100 : 0;
-    html += '<div class="card"><h2>Today’s plan</h2><p class="summary">You have <strong>' + spoonText(plan.budget) + '</strong>.' +
-      (used ? ' You’ve used ' + spoonText(used) + '.' : '') +
-      (plan.planCost ? ' The plan uses ' + spoonText(plan.planCost) + (plan.reserve ? ' and' : '.') : '') +
-      (plan.reserve ? ' Spoonful keeps ' + spoonText(plan.reserve) + ' in reserve for the unexpected.' : '') + '</p>' +
-      '<div class="energy-bar" aria-hidden="true">' +
-      '<span class="seg spent" style="width:' + pctSpent + '%"></span>' +
-      '<span class="seg planned" style="width:' + pctPlan + '%"></span>' +
-      '<span class="seg reserve" style="width:' + pctReserve + '%"></span></div>' +
-      '<ul class="legend" aria-hidden="true"><li><span class="dot spent"></span>Used</li><li><span class="dot planned"></span>Planned</li><li><span class="dot reserve"></span>Reserve</li><li><span class="dot free"></span>Unplanned</li></ul>';
-    if (plan.budget <= 2) html += '<p class="gentle">Low-energy day. Only the essentials are planned. Being gentle with yourself counts as progress.</p>';
+    if (plan.budget <= 2) html += '<p class="note-box">Low-energy day. Only the essentials are planned. Being gentle with yourself counts as progress.</p>';
 
     if (plan.planned.length) {
-      html += '<ol class="plan-list">' + plan.planned.map(function (p) {
-        var t = p.task;
-        var stepsNote = '';
+      html += '<ol class="rows plan-list">' + plan.planned.map(function (p, i) {
+        var t = p.task, sub = '';
         if (t.steps.length) {
           var remaining = t.steps.filter(function (s) { return !s.done; }).length;
-          stepsNote = p.partial
-            ? '<span class="note">Just the first ' + p.stepIds.length + ' of ' + remaining + ' remaining steps today</span>'
-            : '<span class="note">' + remaining + ' step' + (remaining === 1 ? '' : 's') + ' left</span>';
+          sub = '<span class="sub">' + (p.partial
+            ? 'Just the first ' + p.stepIds.length + ' of ' + remaining + ' steps today'
+            : remaining + ' step' + (remaining === 1 ? '' : 's') + ' left') + '</span>';
         }
-        return '<li class="plan-item"><span class="title">' + esc(t.title) + '</span>' +
-          '<span class="meta">' + badge(p.spoons) + mustLabel(t) + dueLabel(t) + stepsNote + '</span></li>';
+        return '<li class="row plan-item"><span class="num" aria-hidden="true">' + (i + 1) + '</span>' + row(t, p.spoons, sub) + '</li>';
       }).join('') + '</ol>' +
-        '<button type="button" class="btn primary big" data-nav="focus" data-key="start-focus">Start Focus mode: one thing at a time</button>';
+        '<button type="button" class="btn primary block" data-nav="focus" data-key="start-focus">Start Focus: one thing at a time</button>';
     } else {
-      html += '<p>' + (plan.available <= 0 ? 'Your energy for today is used up. That’s a full day. Rest now.' : 'Nothing fits right now, and that’s okay.') + '</p>';
+      html += '<p class="quiet">' + (plan.available <= 0 ? 'Your energy for today is used up. That’s a full day. Rest now.' : 'Nothing fits right now, and that’s okay.') + '</p>';
     }
-    html += '</div>';
+    html += '</section>';
 
     if (plan.deferred.length) {
-      html += '<div class="card"><h2>Not today, and that’s okay</h2><ul class="defer-list">' + plan.deferred.map(function (d) {
-        var t = d.task;
-        var action = (d.reason === 'too-big' || d.reason === 'step-too-big')
-          ? '<button type="button" class="btn small" data-action="breakdown" data-id="' + t.id + '" data-key="bd-' + t.id + '">Break it down<span class="sr-only">: ' + esc(t.title) + '</span></button>'
-          : '';
-        return '<li><div><span class="title">' + esc(t.title) + '</span> <span class="meta">' + badge(P.remainingCost(t)) + mustLabel(t) + dueLabel(t) + '</span></div>' +
-          '<p class="reason">' + REASONS[d.reason] + '</p>' + action + '</li>';
-      }).join('') + '</ul></div>';
+      html += '<section class="card" aria-labelledby="h-later"><div class="card-head"><h2 id="h-later">Not today, and that’s okay</h2></div>';
+      GROUPS.forEach(function (g) {
+        var items = plan.deferred.filter(function (d) { return d.reason === g.reason; });
+        if (!items.length) return;
+        var list = '<ul class="rows defer-list">' + items.map(function (d) {
+          var t = d.task;
+          var action = g.action
+            ? '<button type="button" class="btn small" data-action="breakdown" data-id="' + t.id + '" data-key="bd-' + t.id + '">Break it down<span class="sr-only">: ' + esc(t.title) + '</span></button>'
+            : '';
+          return '<li class="row">' + row(t, P.remainingCost(t)) + action + '</li>';
+        }).join('') + '</ul>';
+        if (g.collapse) {
+          html += '<details class="group" id="group-' + g.reason + '"><summary><span class="group-title">' + items.length + ' task' + (items.length === 1 ? '' : 's') + ' can wait</span>' +
+            '<span class="group-note reason">' + g.note + '</span></summary>' + list + '</details>';
+        } else {
+          html += '<div class="group"><p class="group-title">' + g.title + '</p><p class="group-note reason">' + g.note + '</p>' + list + '</div>';
+        }
+      });
+      html += '</section>';
     }
 
     if (state.day.log.length) {
-      html += '<div class="card"><h2>Done today</h2><ul class="done-list">' + state.day.log.map(function (e) {
-        return '<li><span class="check" aria-hidden="true">✓</span><span class="done-body"><span class="title">' + esc(e.title) + '</span> ' + badge(e.spoons) +
-          ' <button type="button" class="btn link" data-action="undo" data-id="' + e.id + '" data-key="undo-' + e.id + '">Undo<span class="sr-only">: ' + esc(e.title) + '</span></button></span></li>';
-      }).join('') + '</ul></div>';
+      html += '<section class="card" aria-labelledby="h-done"><div class="card-head"><h2 id="h-done">Done today</h2><span class="head-meta">' + spoonText(plan.spent) + ' used</span></div>' +
+        '<ul class="rows done-list">' + state.day.log.map(function (e) {
+          return '<li class="row"><span class="tick" aria-hidden="true">✓</span><div class="row-main"><span class="title">' + esc(e.title) + '</span></div>' +
+            '<div class="row-meta">' + cost(e.spoons) +
+            '<button type="button" class="btn link" data-action="undo" data-id="' + e.id + '" data-key="undo-' + e.id + '">Undo<span class="sr-only">: ' + esc(e.title) + '</span></button></div></li>';
+        }).join('') + '</ul></section>';
     }
 
     out.innerHTML = html;
@@ -316,9 +349,16 @@
   function renderCostOptions() {
     $('#cost-options').innerHTML = COSTS.map(function (c) {
       var id = 'cost-' + c.v;
-      return '<div class="cost-option"><input type="radio" name="cost" id="' + id + '" value="' + c.v + '"' + (c.v === 2 ? ' checked' : '') + '>' +
-        '<label for="' + id + '"><strong>' + c.label + ' · ' + spoonText(c.v) + '</strong><span>' + c.hint + '</span></label></div>';
+      return '<div class="seg"><input type="radio" name="cost" id="' + id + '" value="' + c.v + '"' + (c.v === 2 ? ' checked' : '') + ' aria-describedby="cost-hint">' +
+        '<label for="' + id + '"><span class="seg-label">' + c.label + '</span><span class="seg-num">' + c.v + '<span class="sr-only"> ' + (c.v === 1 ? 'spoon' : 'spoons') + '</span></span></label></div>';
     }).join('');
+    updateCostHint();
+  }
+
+  function updateCostHint() {
+    var checked = $('#cost-options input:checked');
+    var c = COSTS.find(function (x) { return String(x.v) === (checked && checked.value); });
+    $('#cost-hint').textContent = c ? c.label + ' · ' + spoonText(c.v) + '. ' + c.hint : '';
   }
 
   function renderTaskPanel(t) {
@@ -326,89 +366,87 @@
       return !t.steps.some(function (st) { return st.title === s; });
     });
     var html = '<div class="task-panel" id="panel-' + t.id + '">';
-    html += '<div class="field-row">' +
-      '<div class="field"><label for="cost-' + t.id + '">Energy</label><select id="cost-' + t.id + '" data-field="cost" data-id="' + t.id + '" data-key="fcost-' + t.id + '">' +
+    html += '<div class="panel-fields">' +
+      '<div class="field compact"><label for="cost-' + t.id + '">Energy</label><select id="cost-' + t.id + '" data-field="cost" data-id="' + t.id + '" data-key="fcost-' + t.id + '">' +
       COSTS.map(function (c) { return '<option value="' + c.v + '"' + (c.v === t.cost ? ' selected' : '') + '>' + c.label + ' (' + spoonText(c.v) + ')</option>'; }).join('') +
       '</select></div>' +
-      '<div class="field"><label for="due-' + t.id + '">Due date</label><input type="date" id="due-' + t.id + '" value="' + esc(t.due || '') + '" data-field="due" data-id="' + t.id + '" data-key="fdue-' + t.id + '"></div>' +
-      '<div class="field check"><input type="checkbox" id="must-' + t.id + '"' + (t.mustDo ? ' checked' : '') + ' data-field="mustDo" data-id="' + t.id + '" data-key="fmust-' + t.id + '"><label for="must-' + t.id + '">Must happen today</label></div>' +
+      '<div class="field compact"><label for="due-' + t.id + '">Due</label><input type="date" id="due-' + t.id + '" value="' + esc(t.due || '') + '" data-field="due" data-id="' + t.id + '" data-key="fdue-' + t.id + '"></div>' +
+      '<div class="check"><input type="checkbox" id="must-' + t.id + '"' + (t.mustDo ? ' checked' : '') + ' data-field="mustDo" data-id="' + t.id + '" data-key="fmust-' + t.id + '"><label for="must-' + t.id + '">Must happen today</label></div>' +
       '</div>';
 
-    html += '<h4 id="steps-h-' + t.id + '">Steps</h4>';
+    html += '<h3 class="panel-h" id="steps-h-' + t.id + '">Steps' + (t.steps.length ? ' <span class="hint">about ' + spoonText(P.stepCost(t)) + ' each</span>' : '') + '</h3>';
     if (t.steps.length) {
-      html += '<p class="hint">Each step costs about ' + spoonText(P.stepCost(t)) + '.</p><ol class="step-list" aria-labelledby="steps-h-' + t.id + '">' + t.steps.map(function (s) {
+      html += '<ol class="step-list" aria-labelledby="steps-h-' + t.id + '">' + t.steps.map(function (s) {
         var id = 'step-' + s.id;
-        return '<li><input type="checkbox" id="' + id + '"' + (s.done ? ' checked' : '') + ' data-action="step-toggle" data-id="' + t.id + '" data-step="' + s.id + '" data-key="' + id + '">' +
+        return '<li class="check"><input type="checkbox" id="' + id + '"' + (s.done ? ' checked' : '') + ' data-action="step-toggle" data-id="' + t.id + '" data-step="' + s.id + '" data-key="' + id + '">' +
           '<label for="' + id + '"' + (s.done ? ' class="done"' : '') + '>' + esc(s.title) + '</label>' +
-          '<button type="button" class="btn link" data-action="step-remove" data-id="' + t.id + '" data-step="' + s.id + '" data-key="rm-' + s.id + '">Remove<span class="sr-only"> step: ' + esc(s.title) + '</span></button></li>';
+          '<button type="button" class="btn link quiet-link" data-action="step-remove" data-id="' + t.id + '" data-step="' + s.id + '" data-key="rm-' + s.id + '">Remove<span class="sr-only"> step: ' + esc(s.title) + '</span></button></li>';
       }).join('') + '</ol>';
     } else {
-      html += '<p class="hint">No steps yet. Big tasks feel lighter in small pieces, and Spoonful can then fit part of a task into a low-energy day.</p>';
+      html += '<p class="hint">Big tasks feel lighter in small pieces, and then part of them can fit a low-energy day.</p>';
     }
 
     html += '<form class="add-step" data-action="add-step" data-id="' + t.id + '">' +
-      '<label for="step-input-' + t.id + '">Add a step</label>' +
-      '<div class="inline"><input type="text" id="step-input-' + t.id + '" autocomplete="off" data-key="step-input-' + t.id + '">' +
-      '<button type="submit" class="btn" data-key="step-add-' + t.id + '">Add step</button></div></form>';
+      '<label for="step-input-' + t.id + '" class="sr-only">Add a step to ' + esc(t.title) + '</label>' +
+      '<input type="text" id="step-input-' + t.id + '" autocomplete="off" placeholder="Add a step…" data-key="step-input-' + t.id + '">' +
+      '<button type="submit" class="btn" data-key="step-add-' + t.id + '">Add</button></form>';
 
     if (suggestions.length) {
-      html += '<div class="suggestions"><p id="sugg-h-' + t.id + '"><strong>Suggested small steps</strong> <span class="hint">(built-in, works offline, no AI)</span></p>' +
+      html += '<div class="suggestions"><p class="sugg-head" id="sugg-h-' + t.id + '">Suggested steps <span class="hint">built in, no AI</span></p>' +
         '<ul class="chips" aria-labelledby="sugg-h-' + t.id + '">' + suggestions.map(function (s, i) {
           return '<li><button type="button" class="chip" data-action="add-suggested" data-id="' + t.id + '" data-text="' + esc(s) + '" data-key="sg-' + t.id + '-' + i + '"><span aria-hidden="true">+ </span>' + esc(s) + '</button></li>';
         }).join('') + '</ul>' +
-        '<button type="button" class="btn small" data-action="add-all-suggested" data-id="' + t.id + '" data-key="sg-all-' + t.id + '">Add all suggestions</button></div>';
+        '<button type="button" class="btn small" data-action="add-all-suggested" data-id="' + t.id + '" data-key="sg-all-' + t.id + '">Add all</button></div>';
     }
+    html += '<div class="panel-foot"><button type="button" class="btn link danger" data-action="task-delete" data-id="' + t.id + '" data-key="del-' + t.id + '">Delete task<span class="sr-only">: ' + esc(t.title) + '</span></button></div>';
     return html + '</div>';
   }
 
   function renderTasks() {
     var open = state.tasks.filter(function (t) { return !t.done; });
     var done = state.tasks.filter(function (t) { return t.done; });
-    var html = '<h2>To do <span class="count">(' + open.length + ')</span></h2>';
+    var html = '<section class="card" aria-labelledby="h-todo"><div class="card-head"><h2 id="h-todo">To do</h2><span class="head-meta">' + open.length + '</span></div>';
 
     if (!open.length) {
-      html += '<p class="hint">Nothing on your list. Add something above, or enjoy the quiet.</p>';
+      html += '<p class="quiet">Nothing on your list. Add something above, or enjoy the quiet.</p>';
     } else {
-      html += '<ul class="task-list">' + open.map(function (t) {
+      html += '<ul class="rows task-list">' + open.map(function (t) {
         var expanded = openTaskId === t.id;
         var doneSteps = t.steps.filter(function (s) { return s.done; }).length;
-        return '<li class="card task-item">' +
-          '<div class="task-head"><h3>' + esc(t.title) + '</h3>' +
-          '<span class="meta">' + badge(P.remainingCost(t)) + mustLabel(t) + dueLabel(t) +
-          (t.steps.length ? '<span class="note">' + doneSteps + ' of ' + t.steps.length + ' steps done</span>' : '') + '</span></div>' +
-          '<div class="button-row">' +
-          '<button type="button" class="btn small" data-action="toggle-details" data-id="' + t.id + '" aria-expanded="' + expanded + '" aria-controls="panel-' + t.id + '" data-key="det-' + t.id + '">' +
-          (expanded ? 'Hide details' : 'Details & steps') + '<span class="sr-only">: ' + esc(t.title) + '</span></button>' +
-          '<button type="button" class="btn small" data-action="task-done" data-id="' + t.id + '" data-key="done-' + t.id + '">Mark done<span class="sr-only">: ' + esc(t.title) + '</span></button>' +
-          '<button type="button" class="btn small danger" data-action="task-delete" data-id="' + t.id + '" data-key="del-' + t.id + '">Delete<span class="sr-only">: ' + esc(t.title) + '</span></button>' +
+        var sub = t.steps.length ? '<span class="sub">' + doneSteps + ' of ' + t.steps.length + ' steps done</span>' : '';
+        return '<li class="task-item' + (expanded ? ' open' : '') + '"><div class="row">' +
+          '<button type="button" class="circle-check" data-action="task-done" data-id="' + t.id + '" data-key="done-' + t.id + '"><span class="sr-only">Mark done: ' + esc(t.title) + '</span></button>' +
+          '<button type="button" class="row-toggle" data-action="toggle-details" data-id="' + t.id + '" aria-expanded="' + expanded + '" aria-controls="panel-' + t.id + '" data-key="det-' + t.id + '">' +
+          '<span class="title">' + esc(t.title) + '</span>' + sub + '<span class="sr-only">, details and steps</span></button>' +
+          '<div class="row-meta">' + mustTag(t) + dueTag(t) + cost(P.remainingCost(t)) +
+          '<svg class="chev" aria-hidden="true" viewBox="0 0 24 24" width="18" height="18"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
           '</div>' + (expanded ? renderTaskPanel(t) : '') + '</li>';
       }).join('') + '</ul>';
     }
+    html += '</section>';
 
     if (done.length) {
-      html += '<details class="completed"><summary>Completed (' + done.length + ')</summary><ul class="done-list">' + done.map(function (t) {
-        return '<li><span class="check" aria-hidden="true">✓</span><span class="done-body"><span class="title">' + esc(t.title) + '</span>' +
-          '<button type="button" class="btn link" data-action="task-restore" data-id="' + t.id + '" data-key="rest-' + t.id + '">Move back to to-do<span class="sr-only">: ' + esc(t.title) + '</span></button></span></li>';
+      html += '<details class="card completed" id="completed"><summary>Completed <span class="head-meta">' + done.length + '</span></summary><ul class="rows done-list">' + done.map(function (t) {
+        return '<li class="row"><span class="tick" aria-hidden="true">✓</span><div class="row-main"><span class="title">' + esc(t.title) + '</span></div>' +
+          '<button type="button" class="btn link" data-action="task-restore" data-id="' + t.id + '" data-key="rest-' + t.id + '">Restore<span class="sr-only">: ' + esc(t.title) + '</span></button></li>';
       }).join('') + '</ul><button type="button" class="btn small" data-action="clear-completed" data-key="clear-completed">Clear completed</button></details>';
     }
 
-    var wasOpen = $('.completed') && $('.completed').open;
     $('#task-list').innerHTML = html;
-    if (wasOpen && $('.completed')) $('.completed').open = true;
   }
 
   function renderFocus() {
     var out = $('#focus-body');
     if (state.day.spoons == null) {
-      out.innerHTML = '<div class="card empty"><p>Check in on the Today page first, so Focus knows what fits.</p>' +
+      out.innerHTML = '<div class="empty"><p>Check in on the Today page first, so Focus knows what fits.</p>' +
         '<button type="button" class="btn primary" data-nav="today" data-key="focus-to-today">Go to Today</button></div>';
       return;
     }
     var queue = focusQueue();
     if (!queue.length) {
       var count = state.day.log.length;
-      out.innerHTML = '<div class="card empty focus-card"><h2 id="focus-title" tabindex="-1">' + (count ? 'That’s everything planned. Well done.' : 'Nothing planned right now.') + '</h2>' +
-        '<p>' + (count ? 'You finished ' + count + ' thing' + (count === 1 ? '' : 's') + ' and used ' + spoonText(spent()) + '. Rest is the next step.' : 'Rest counts too.') + '</p>' +
+      out.innerHTML = '<div class="card focus-card"><h2 id="focus-title" class="focus-title" tabindex="-1">' + (count ? 'That’s everything planned.' : 'Nothing planned right now.') + '</h2>' +
+        '<p class="quiet">' + (count ? 'You finished ' + count + ' thing' + (count === 1 ? '' : 's') + ' and used ' + spoonText(spent()) + '. Rest is the next step.' : 'Rest counts too.') + '</p>' +
         '<button type="button" class="btn" data-nav="today" data-key="focus-to-today">Back to Today</button></div>';
       stopTimer();
       return;
@@ -417,29 +455,25 @@
     var item = queue[0];
     var t = item.task;
     var eyebrow = 'One thing now';
-    if (item.step) {
-      var idx = t.steps.indexOf(item.step) + 1;
-      eyebrow = 'Step ' + idx + ' of ' + t.steps.length + ' · ' + esc(t.title);
-    }
-    var cost = item.step ? P.stepCost(t) : t.cost;
+    if (item.step) eyebrow = 'Step ' + (t.steps.indexOf(item.step) + 1) + ' of ' + t.steps.length + ' · ' + esc(t.title);
     var next = queue[1];
+    var position = '<span class="dots" aria-hidden="true">' + queue.map(function (q, i) { return '<i' + (i === 0 ? ' class="on"' : '') + '></i>'; }).join('') + '</span>';
 
     out.innerHTML = '<div class="card focus-card">' +
       '<p class="eyebrow">' + eyebrow + '</p>' +
       '<h2 id="focus-title" class="focus-title" tabindex="-1">' + esc(itemTitle(item)) + '</h2>' +
-      '<p class="meta">' + badge(cost) + mustLabel(t) + dueLabel(t) + '</p>' +
-      '<div class="focus-actions">' +
-      '<button type="button" class="btn primary big" data-action="focus-done" data-key="focus-done">Done</button>' +
-      '<button type="button" class="btn" data-action="focus-breakdown" data-id="' + t.id + '" data-key="focus-bd">Too big? Break it down</button>' +
-      '<button type="button" class="btn" data-action="focus-skip" data-key="focus-skip">Not now</button>' +
-      '<button type="button" class="btn" data-action="focus-speak" data-key="focus-speak">Read aloud</button>' +
-      '</div>' +
-      '<div class="timer-row">' +
+      '<div class="focus-meta">' + mustTag(t) + dueTag(t) + cost(item.step ? P.stepCost(t) : t.cost) + '</div>' +
+      '<button type="button" class="btn primary block big" data-action="focus-done" data-key="focus-done">Done</button>' +
+      '<div class="focus-secondary">' +
+      '<button type="button" class="btn ghost" data-action="focus-skip" data-key="focus-skip">Not now</button>' +
+      '<button type="button" class="btn ghost" data-action="focus-breakdown" data-id="' + t.id + '" data-key="focus-bd">Too big?</button>' +
+      '<button type="button" class="btn ghost" data-action="focus-speak" data-key="focus-speak">Read aloud</button>' +
       (timer.start
-        ? '<span class="timer" role="timer" aria-live="off" id="timer-out">' + formatElapsed() + '</span><button type="button" class="btn link" data-action="timer-stop" data-key="timer">Stop timer</button>'
-        : '<button type="button" class="btn link" data-action="timer-start" data-key="timer">Start a gentle timer</button><span class="hint">It counts up, never down. No pressure.</span>') +
+        ? '<button type="button" class="btn ghost" data-action="timer-stop" data-key="timer">Stop timer <span class="timer" role="timer" aria-live="off" id="timer-out">' + formatElapsed() + '</span></button>'
+        : '<button type="button" class="btn ghost" data-action="timer-start" data-key="timer" aria-describedby="timer-hint">Gentle timer</button>') +
       '</div>' +
-      '<p class="up-next">' + (next ? 'Then: ' + esc(itemTitle(next)) + ' · ' : '') + queue.length + ' thing' + (queue.length === 1 ? '' : 's') + ' left in today’s plan</p>' +
+      (timer.start ? '' : '<p class="hint center" id="timer-hint">The timer counts up, never down.</p>') +
+      '<div class="up-next">' + position + '<span>' + (next ? 'Then: ' + esc(itemTitle(next)) : 'Last one for today') + '</span></div>' +
       '</div>';
   }
 
@@ -474,6 +508,7 @@
   function render() {
     var active = document.activeElement;
     var key = active && active.getAttribute && active.getAttribute('data-key');
+    var openDetails = $all('details[open][id]').map(function (d) { return d.id; });
 
     applySettings();
     renderNav();
@@ -482,6 +517,7 @@
     renderFocus();
     renderSettings();
 
+    openDetails.forEach(function (id) { var d = document.getElementById(id); if (d) d.open = true; });
     if (key) {
       var el = document.querySelector('[data-key="' + key + '"]');
       if (el && el !== document.activeElement && !el.closest('[hidden]')) el.focus();
@@ -632,8 +668,7 @@
         skipped = skipped.filter(function (k) { return k !== item.key; });
         persist(); render();
         var after = focusQueue()[0];
-        var msg = 'Done: ' + itemTitle(item) + '.' + (after ? ' Next: ' + itemTitle(after) + '.' : ' That’s everything planned.');
-        notify(msg);
+        notify('Done: ' + itemTitle(item) + '.' + (after ? ' Next: ' + itemTitle(after) + '.' : ' That’s everything planned.'));
         if (after && state.settings.readAloud) speak('Next: ' + itemTitle(after));
         if (!after) $('#focus-title').focus();
         break;
@@ -698,6 +733,7 @@
 
     if (el.name === 'preset') { setSpoons(Number(el.value)); return; }
     if (el.id === 'spoon-count') { if (el.value !== '') setSpoons(Number(el.value)); return; }
+    if (el.name === 'cost' && el.closest('#add-task')) { updateCostHint(); return; }
 
     if (el.closest('#settings-form')) {
       state.settings[el.name] = el.type === 'checkbox' ? el.checked : el.value;

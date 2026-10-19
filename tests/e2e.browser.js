@@ -22,6 +22,12 @@ const log = (...a) => console.log(...a);
   await page.setViewport({ width: 1200, height: 900 });
   await page.goto('http://localhost:8765/', { waitUntil: 'networkidle0' });
   const text = s => page.$eval(s, el => el.innerText);
+  // Gallery screenshots: un-stick the header and hide the toast so full-page captures look right.
+  const shot = async (file, full = true) => {
+    const h = await page.addStyleTag({ content: '.topbar{position:static!important}.toast{display:none!important}' });
+    await page.screenshot({ path: OUT + '/' + file, fullPage: full });
+    await h.evaluate(e => e.remove());
+  };
   const axe = async (label) => {
     await page.evaluate(axeSrc);
     const r = await page.evaluate(() => axe.run(document, { runOnly: ['wcag2a','wcag2aa','wcag21aa','best-practice'] }));
@@ -29,16 +35,16 @@ const log = (...a) => console.log(...a);
     r.violations.forEach(v => log('  -', v.id, v.impact, v.help, v.nodes.slice(0,3).map(n => n.target.join(' ')).join(' | ')));
   };
   await axe('empty today');
-  await page.screenshot({ path: OUT + '/01-empty.png' });
+  await shot('01-empty.png', false);
   // load sample
   await page.click('[data-key="empty-sample"]');
   await page.click('label[for="preset-4"]');
   log('PLAN (low=4):\n' + await text('#today-plan'));
   await axe('today low');
-  await page.screenshot({ path: OUT + '/02-low-day.png', fullPage: true });
+  await shot('02-low-day.png');
   await page.click('label[for="preset-10"]');
   log('PLAN (great=10) planned items:', await page.$$eval('.plan-item .title', els => els.map(e => e.innerText)));
-  await page.screenshot({ path: OUT + '/03-great-day.png', fullPage: true });
+  await shot('03-great-day.png');
   await page.click('label[for="preset-4"]');
   // break down the deferred lab report
   const bd = await page.$('[data-action="breakdown"]');
@@ -48,7 +54,7 @@ const log = (...a) => console.log(...a);
   await page.click('[data-action="add-all-suggested"]');
   log('steps after add-all:', await page.$$eval('.step-list label', els => els.map(e => e.innerText)));
   await axe('tasks panel');
-  await page.screenshot({ path: OUT + '/04-breakdown.png', fullPage: true });
+  await shot('04-breakdown.png');
   // add task via form, validation
   await page.click('#add-task button[type=submit]');
   log('validation error visible:', await page.$eval('#title-error', e => !e.hidden));
@@ -64,7 +70,7 @@ const log = (...a) => console.log(...a);
   await page.click('[data-key="start-focus"]');
   log('FOCUS:', await text('#focus-body'));
   await axe('focus');
-  await page.screenshot({ path: OUT + '/05-focus.png' });
+  await shot('05-focus.png', false);
   log('done btn:', await page.evaluate(() => { const b = document.querySelectorAll('[data-action="focus-done"]'); return [...b].map(x => JSON.stringify(x.getBoundingClientRect()) + ' hiddenAncestor=' + !!x.closest('[hidden]')); }));
   await page.click('[data-action="focus-done"]');
   log('active after done:', await page.evaluate(() => document.activeElement.getAttribute('data-key')));
@@ -87,7 +93,7 @@ const log = (...a) => console.log(...a);
   await page.click('input[name=theme][value=dark]'); await page.click('input[name=textSize][value=large]');
   await axe('settings dark contrast');
   await page.click('[data-nav="today"]');
-  await page.screenshot({ path: OUT + '/06-dark-contrast-large.png', fullPage: true });
+  await shot('06-dark-contrast-large.png');
   await page.click('[data-nav="settings"]');
   await page.click('#set-contrast'); await page.click('#set-readable');
   await axe('settings dark');
@@ -97,7 +103,7 @@ const log = (...a) => console.log(...a);
   await page.keyboard.press('Tab');
   // mobile
   await page.setViewport({ width: 390, height: 844, isMobile: true });
-  await page.screenshot({ path: OUT + '/07-mobile.png', fullPage: true });
+  await shot('07-mobile.png');
   log('horizontal overflow on mobile:', await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth));
   log('SW registered:', await page.evaluate(() => navigator.serviceWorker.getRegistrations().then(r => r.length)));
   log('ERRORS:', errors.length ? errors : 'none');

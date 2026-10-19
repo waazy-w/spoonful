@@ -85,17 +85,17 @@ const OVERLAY_CSS = `
     great: async at => {
       await click('[data-key="empty-sample"]'); await at(2.5); await click('label[for="preset-10"]');
       await at(5); await scrollTo('#today-plan'); await at(7); await point('.plan-item', 0); await at(9); await point('.plan-item', 2);
-      await at(12); await point('.energy-bar');
+      await at(12); await point('.meter');
     },
     low: async at => {
       await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'smooth' })); await sleep(500); await click('label[for="preset-4"]');
       await at(3); await scrollTo('#today-plan'); await at(5.5); await point('.plan-list');
-      await at(8); await point('.defer-list .reason', 1); await at(13); await point('.defer-list .reason', 2);
+      await at(8); await point('.group-note', 0); await at(12); await click('#group-no-room > summary'); await sleep(300); await point('#group-no-room .group-note');
     },
     breakdown: async at => {
       await click('[data-action="breakdown"]', 0); await at(5); await click('[data-action="add-all-suggested"]');
       await at(9); await click('[data-nav="today"]'); await sleep(400); await click('label[for="preset-6"]');
-      await at(11.5); await point('.plan-item .note');
+      await at(11.5); await point('.plan-item .sub');
     },
     focus: async at => {
       await click('[data-key="start-focus"]'); await at(3.5); await click('[data-action="focus-done"]');

@@ -69,6 +69,7 @@ Disabled and chronically ill people already have a language for this: **spoon th
 - **Making "no" feel kind.** The first version just listed unplanned tasks. We rewrote every deferral as a reason (*"Your energy is already spoken for today. This can wait."*) and labelled very low days as **rest**, not failure.
 - **Big tasks never fit.** A 5-spoon lab report due tomorrow would never fit a 4-spoon day, so the planner silently ignored it. Our browser test caught this. We added a "never fits" rule that offers a breakdown, and partial planning so the first steps of a big task get scheduled.
 - **The toast covered the buttons.** Our automated test couldn't click "Start Focus" because the notification toast sat on top of it, and real users would have hit the same problem. The fix was `pointer-events: none`, plus hiding the toast from screen readers so announcements weren't read twice.
+- **Focus hidden under the sticky header.** Our test clicked "Add task" and hit the Settings tab instead: the browser had scrolled the button underneath the sticky header. Keyboard users would have had the same problem, with focus hidden (WCAG 2.2 "Focus Not Obscured"). We fixed it with `scroll-padding`.
 - **Keeping keyboard focus through re-renders.** Every interactive element has a stable key, so focus returns to the right control after the list redraws.
 
 ## Accomplishments we're proud of

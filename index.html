@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Spoonful: plan by energy, not by hours</title>
   <meta name="description" content="An accessible day planner for people whose energy changes day to day. Tell it how many spoons you have; it plans what fits and explains what can wait.">
-  <meta name="theme-color" content="#2f5d50">
+  <meta name="theme-color" content="#f7f6f3">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,36 +17,43 @@
   <a class="skip-link" href="#main">Skip to content</a>
 
   <header class="topbar">
-    <div class="brand">
-      <svg aria-hidden="true" viewBox="0 0 32 32" width="28" height="28"><ellipse cx="16" cy="9" rx="6" ry="7.5" fill="currentColor"/><rect x="14.5" y="15" width="3" height="15" rx="1.5" fill="currentColor"/></svg>
-      <span>Spoonful</span>
+    <div class="topbar-inner">
+      <div class="brand">
+        <svg aria-hidden="true" viewBox="0 0 16 32" width="12" height="24"><ellipse cx="8" cy="8" rx="6" ry="7.5" fill="currentColor"/><rect x="6.5" y="14" width="3" height="17" rx="1.5" fill="currentColor"/></svg>
+        <span>Spoonful</span>
+      </div>
+      <nav aria-label="Main">
+        <ul class="tabs">
+          <li><button type="button" class="tab" data-nav="today">Today</button></li>
+          <li><button type="button" class="tab" data-nav="tasks">Tasks</button></li>
+          <li><button type="button" class="tab" data-nav="focus">Focus</button></li>
+          <li><button type="button" class="tab" data-nav="settings">Settings</button></li>
+        </ul>
+      </nav>
     </div>
-    <nav aria-label="Main">
-      <ul class="tabs">
-        <li><button type="button" class="tab" data-nav="today">Today</button></li>
-        <li><button type="button" class="tab" data-nav="tasks">Tasks</button></li>
-        <li><button type="button" class="tab" data-nav="focus">Focus</button></li>
-        <li><button type="button" class="tab" data-nav="settings">Settings</button></li>
-      </ul>
-    </nav>
   </header>
 
   <main id="main" tabindex="-1">
 
     <!-- TODAY -->
     <section class="view" data-view="today" aria-labelledby="h-today">
-      <h1 id="h-today" tabindex="-1">Today</h1>
+      <div class="page-head">
+        <h1 id="h-today" tabindex="-1">Today</h1>
+        <p class="page-sub" id="today-date"></p>
+      </div>
 
-      <form id="checkin" class="card" aria-describedby="checkin-help">
+      <form id="checkin" class="card">
         <fieldset>
           <legend>How much energy do you have right now?</legend>
-          <p id="checkin-help" class="hint">One spoon is roughly one small task's worth of energy. There is no wrong answer, and you can change it any time.</p>
-          <div class="presets" id="presets"></div>
-          <div class="spoon-stepper">
-            <button type="button" class="btn icon" data-action="spoons-down" aria-label="One spoon fewer">−</button>
-            <label for="spoon-count">Spoons</label>
-            <input id="spoon-count" type="number" inputmode="numeric" min="0" max="12" step="1">
-            <button type="button" class="btn icon" data-action="spoons-up" aria-label="One spoon more">+</button>
+          <p class="hint" id="checkin-help">One spoon is about one small task. You can change this any time.</p>
+          <div class="segmented presets" id="presets"></div>
+          <div class="fine-tune">
+            <label for="spoon-count">Exact spoons</label>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-action="spoons-down" aria-label="One spoon fewer">−</button>
+              <input id="spoon-count" type="number" inputmode="numeric" min="0" max="12" step="1">
+              <button type="button" class="stepper-btn" data-action="spoons-up" aria-label="One spoon more">+</button>
+            </div>
           </div>
         </fieldset>
       </form>
@@ -56,32 +63,34 @@
 
     <!-- TASKS -->
     <section class="view" data-view="tasks" aria-labelledby="h-tasks" hidden>
-      <h1 id="h-tasks" tabindex="-1">Tasks</h1>
+      <div class="page-head">
+        <h1 id="h-tasks" tabindex="-1">Tasks</h1>
+      </div>
 
-      <form id="add-task" class="card" novalidate>
-        <h2>Add a task</h2>
+      <form id="add-task" class="card add-form" novalidate>
         <div class="field">
-          <label for="task-title">What needs doing?</label>
+          <label for="task-title">New task</label>
           <input id="task-title" name="title" type="text" autocomplete="off" required aria-describedby="title-error">
           <p id="title-error" class="error" hidden>Give the task a name first.</p>
         </div>
 
         <fieldset class="field">
-          <legend>How much energy will it take?</legend>
-          <div class="cost-options" id="cost-options"></div>
+          <legend>Energy it will take</legend>
+          <div class="segmented costs" id="cost-options"></div>
+          <p class="hint" id="cost-hint"></p>
         </fieldset>
 
-        <div class="field-row">
-          <div class="field">
-            <label for="task-due">Due date <span class="optional">(optional)</span></label>
+        <div class="form-foot">
+          <div class="field compact">
+            <label for="task-due">Due <span class="optional">(optional)</span></label>
             <input id="task-due" name="due" type="date">
           </div>
-          <div class="field check">
+          <div class="check">
             <input id="task-must" name="mustDo" type="checkbox">
             <label for="task-must">Must happen today</label>
           </div>
+          <button type="submit" class="btn primary">Add task</button>
         </div>
-        <button type="submit" class="btn primary">Add task</button>
       </form>
 
       <div id="task-list"></div>
@@ -89,46 +98,50 @@
 
     <!-- FOCUS -->
     <section class="view" data-view="focus" aria-labelledby="h-focus" hidden>
-      <h1 id="h-focus" tabindex="-1">Focus</h1>
+      <div class="page-head">
+        <h1 id="h-focus" tabindex="-1">Focus</h1>
+      </div>
       <div id="focus-body"></div>
     </section>
 
     <!-- SETTINGS -->
     <section class="view" data-view="settings" aria-labelledby="h-settings" hidden>
-      <h1 id="h-settings" tabindex="-1">Settings</h1>
+      <div class="page-head">
+        <h1 id="h-settings" tabindex="-1">Settings</h1>
+      </div>
 
-      <form id="settings-form" class="card">
+      <form id="settings-form" class="card settings">
         <h2>Comfort</h2>
-        <fieldset class="field">
+        <fieldset class="setting">
           <legend>Text size</legend>
-          <div class="radio-row">
-            <label><input type="radio" name="textSize" value="default"> Default</label>
-            <label><input type="radio" name="textSize" value="large"> Large</label>
-            <label><input type="radio" name="textSize" value="xlarge"> Extra large</label>
+          <div class="segmented small">
+            <div class="seg"><input type="radio" name="textSize" value="default" id="ts-default"><label for="ts-default">Default</label></div>
+            <div class="seg"><input type="radio" name="textSize" value="large" id="ts-large"><label for="ts-large">Large</label></div>
+            <div class="seg"><input type="radio" name="textSize" value="xlarge" id="ts-xlarge"><label for="ts-xlarge">Extra large</label></div>
           </div>
         </fieldset>
-        <fieldset class="field">
-          <legend>Colour theme</legend>
-          <div class="radio-row">
-            <label><input type="radio" name="theme" value="auto"> Match my device</label>
-            <label><input type="radio" name="theme" value="light"> Light</label>
-            <label><input type="radio" name="theme" value="dark"> Dark</label>
+        <fieldset class="setting">
+          <legend>Theme</legend>
+          <div class="segmented small">
+            <div class="seg"><input type="radio" name="theme" value="auto" id="th-auto"><label for="th-auto">Auto</label></div>
+            <div class="seg"><input type="radio" name="theme" value="light" id="th-light"><label for="th-light">Light</label></div>
+            <div class="seg"><input type="radio" name="theme" value="dark" id="th-dark"><label for="th-dark">Dark</label></div>
           </div>
         </fieldset>
-        <div class="field check"><input id="set-readable" type="checkbox" name="readable"><label for="set-readable">Readable spacing (wider letter and line spacing, helpful for dyslexia)</label></div>
-        <div class="field check"><input id="set-contrast" type="checkbox" name="contrast"><label for="set-contrast">High contrast</label></div>
-        <div class="field check"><input id="set-motion" type="checkbox" name="reduceMotion"><label for="set-motion">Reduce motion</label></div>
-        <div class="field check"><input id="set-read" type="checkbox" name="readAloud"><label for="set-read">Read each step aloud in Focus mode</label></div>
+        <div class="check setting"><input id="set-readable" type="checkbox" name="readable"><label for="set-readable">Readable spacing <span class="hint">Wider letter and line spacing, which helps with dyslexia</span></label></div>
+        <div class="check setting"><input id="set-contrast" type="checkbox" name="contrast"><label for="set-contrast">High contrast</label></div>
+        <div class="check setting"><input id="set-motion" type="checkbox" name="reduceMotion"><label for="set-motion">Reduce motion</label></div>
+        <div class="check setting"><input id="set-read" type="checkbox" name="readAloud"><label for="set-read">Read each step aloud in Focus</label></div>
       </form>
 
       <div class="card">
         <h2>Your data</h2>
-        <p class="hint">Everything stays in this browser. Nothing is sent anywhere, and there's no account to make.</p>
+        <p class="hint">Everything stays in this browser. Nothing is sent anywhere, and there's no account.</p>
         <div class="button-row">
-          <button type="button" class="btn" data-action="export">Download a backup</button>
-          <label class="btn file-btn">Restore a backup<input type="file" id="import-file" accept="application/json,.json" class="sr-only"></label>
+          <button type="button" class="btn" data-action="export">Download backup</button>
+          <label class="btn file-btn">Restore backup<input type="file" id="import-file" accept="application/json,.json" class="sr-only"></label>
           <button type="button" class="btn" data-action="load-sample">Load example tasks</button>
-          <button type="button" class="btn danger" data-action="clear-all">Delete everything</button>
+          <button type="button" class="btn ghost danger" data-action="clear-all">Delete everything</button>
         </div>
       </div>
     </section>
