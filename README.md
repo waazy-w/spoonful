@@ -5,6 +5,8 @@ Tell it how many "spoons" you have today. It plans what fits, holds one spoon in
 
 > Built for the [Taskforge](https://taskforge.devpost.com/) hackathon (Oct 2026).
 
+**▶ Live app:** https://waazy-w.github.io/spoonful/ · **🎬 Demo video:** [docs/spoonful-demo.mp4](docs/spoonful-demo.mp4) (2:19, captioned)
+
 ![Low-energy day plan](docs/screenshots/1-low-energy-day.png)
 
 ## The problem

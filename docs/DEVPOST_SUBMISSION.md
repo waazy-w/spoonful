@@ -1,6 +1,6 @@
 # Devpost submission: copy-paste ready
 
-> Fill in the `[BRACKETS]` before submitting. Every section the brief asks for is covered: problem, intended user, solution, tools, limitations, what you learned, pre-existing work, AI assistance.
+> Ready to paste. The only blanks left are **Team** (your Devpost username) and the optional user-testing line. Every section the brief asks for is covered: problem, intended user, solution, tools, limitations, what you learned, pre-existing work, AI assistance.
 
 ---
 
@@ -11,9 +11,9 @@
 **Built with (tags):** `javascript` `html5` `css3` `pwa` `service-worker` `localstorage` `web-speech-api` `node.js` `axe-core` `accessibility`
 
 **Links:**
-- Try it: `[GITHUB PAGES URL]`
-- Code: `[GITHUB REPO URL]`
-- Video: `[YOUTUBE / VIMEO URL]`
+- Try it: https://waazy-w.github.io/spoonful/
+- Code: https://github.com/waazy-w/spoonful
+- Video: `[paste your YouTube link after uploading docs/spoonful-demo.mp4 + docs/spoonful-demo.srt captions]`
 
 **Image gallery (in this order):** `docs/screenshots/1-low-energy-day.png`, `2-great-day.png`, `3-break-it-down.png`, `4-focus-mode.png`, `5-high-contrast-large-text.png`, `6-mobile.png`
 
@@ -79,7 +79,6 @@ Disabled and chronically ill people already have a language for this: **spoon th
 
 ## What we learned
 
-`[Personalise this. Suggested points:]`
 - Accessibility is easier when it's designed in from the start. Using real form controls under a custom look gave us screen-reader support almost for free.
 - Language is part of the interface. The same algorithm feels supportive or judgemental depending on one sentence.
 - Writing the core logic as pure, tested functions let us change the planning rules late in the project with confidence.
@@ -103,9 +102,9 @@ Disabled and chronically ill people already have a language for this: **spoon th
 - **Concept:** "Spoon theory" is Christine Miserandino's (2003). We built on the idea; we did not invent it.
 - **Font:** Atkinson Hyperlegible (Braille Institute, SIL Open Font License) via Google Fonts.
 - **Testing libraries** (dev only, not shipped): puppeteer-core, axe-core.
-- **AI assistance:** `[Be accurate. For example: "We used Claude (Anthropic), through Claude Code, to help brainstorm and score ideas, write and refactor code, write tests, and draft this write-up. We reviewed, ran and tested all of the code ourselves."]`
+- **AI assistance:** Built with Claude (Anthropic) through Claude Code. The AI helped generate and score the 10 candidate ideas against the rubric, wrote most of the code and tests, ran the automated browser and accessibility tests, drafted this write-up, and produced the demo video. The video's narration is a synthetic text-to-speech voice (Microsoft Zira), and it was recorded automatically from the real app. We chose the idea, reviewed the code and results, and are responsible for the submission. The app itself uses **no AI at runtime**: step suggestions are hand-written templates.
 - All code was written during the hackathon period. No pre-existing project code was used.
 
 ## Team
 
-`[Name(s) + Devpost usernames. Every team member must be added to the Devpost project.]`
+- saaz (GitHub: [waazy-w](https://github.com/waazy-w)), Devpost: `[your Devpost username]`

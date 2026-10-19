@@ -1,0 +1,20 @@
+[
+ {"id":"intro","say":"Every to-do app assumes you have the same energy every day. For students living with chronic illness, A.D.H.D., or depression, that just isn't true. On a bad day, the list doesn't shrink. It just turns into guilt.",
+  "cap":["Every to-do app assumes you have the same energy every day.","For students living with chronic illness, ADHD, or depression, that just isn't true.","On a bad day, the list doesn't shrink. It just turns into guilt."]},
+ {"id":"question","say":"Spoonful is built on spoon theory. You get a limited number of spoons each day, and every task costs some. So Spoonful starts with one question. How much energy do you have right now?",
+  "cap":["Spoonful is built on spoon theory.","You get a limited number of spoons each day, and every task costs some.","So Spoonful starts with one question: how much energy do you have right now?"]},
+ {"id":"great","say":"Here's a typical student week. On a great day, Spoonful plans the must-dos and the deadlines first. The doctor's appointment, the email due today, even the big lab report. And it always keeps one spoon in reserve.",
+  "cap":["Here's a typical student week.","On a great day, Spoonful plans the must-dos and the deadlines first:","the doctor's appointment, the email due today, even the big lab report.","And it always keeps one spoon in reserve."]},
+ {"id":"low","say":"Same list. Rough day. Now only two things fit. Everything else is still here, with a reason. Your energy is already spoken for. This can wait. No red badges. No shame.",
+  "cap":["Same list. Rough day. Now only two things fit.","Everything else is still here, with a reason:","\"Your energy is already spoken for. This can wait.\"","No red badges. No shame."]},
+ {"id":"breakdown","say":"The lab report is due tomorrow, but five spoons will never fit a low day. So we break it down, with built-in suggestions that work offline. Now, on an okay day, Spoonful plans just the first step. The deadline still moves forward.",
+  "cap":["The lab report is due tomorrow, but 5 spoons will never fit a low day.","So we break it down, with built-in suggestions that work offline.","Now, on an okay day, Spoonful plans just the first step.","The deadline still moves forward."]},
+ {"id":"focus","say":"Focus mode shows one thing at a time. Done. Not now. Or, too big. It can read each step aloud, and the gentle timer counts up, never down.",
+  "cap":["Focus mode shows one thing at a time.","Done. Not now. Or: too big?","It can read each step aloud, and the gentle timer counts up, never down."]},
+ {"id":"access","say":"Accessibility is built in. Larger text, dyslexia-friendly spacing, high contrast, dark mode, and full keyboard support. Our automated W.C.A.G. audit finds zero violations.",
+  "cap":["Accessibility is built in:","larger text, dyslexia-friendly spacing, high contrast, dark mode,","and full keyboard support.","Our automated WCAG 2.1 AA audit finds zero violations."]},
+ {"id":"tech","say":"Under the hood, the planner is a pure, tested engine, with sixteen unit tests and a browser accessibility test. No server. No account. And it works offline. Your health data stays on your device.",
+  "cap":["Under the hood, the planner is a pure, tested engine:","16 unit tests plus a browser accessibility test.","No server. No account. It works offline.","Your health data stays on your device."]},
+ {"id":"outro","say":"Spoonful. Plan by energy, not by hours. Try it at waazy w dot github dot io, slash spoonful.",
+  "cap":["Spoonful. Plan by energy, not by hours.","Try it: waazy-w.github.io/spoonful"]}
+]

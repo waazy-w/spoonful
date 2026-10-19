@@ -5,12 +5,13 @@
 ## Required by the hackathon
 - [ ] Registered on taskforge.devpost.com (it's student-only, so have your student status ready)
 - [ ] **Working original prototype**: done (this repo)
-- [ ] **Code or build instructions**: push to GitHub (public); the README has run instructions
-- [ ] **Live demo**: GitHub Pages (Settings → Pages → main / root); test the URL in a private window
-- [ ] **Demo video / walkthrough**: record from `docs/DEMO_SCRIPT.md`, upload to YouTube (public or unlisted), add captions
+- [x] **Code**: https://github.com/waazy-w/spoonful (public, 6 commits, README with run instructions)
+- [x] **Live demo**: https://waazy-w.github.io/spoonful/ (verified: loads, plans, works offline, no errors)
+- [x] **Demo video**: `docs/spoonful-demo.mp4` (2:19, narrated, captions burned in)
+- [ ] Upload it to YouTube (unlisted is fine), add `docs/spoonful-demo.srt` as subtitles, and paste the link into Devpost
 - [ ] **Project story**: paste from `docs/DEVPOST_SUBMISSION.md` and fill every `[BRACKET]`
 - [ ] **Problem, user, solution, tools, limitations, what you learned**: all sections are in the write-up
-- [ ] **Identify AI assistance + pre-existing work**: fill in the disclosure section accurately
+- [x] **AI assistance + pre-existing work**: disclosure written; check that it matches what you actually did
 - [ ] **All team members** added to the Devpost project
 - [ ] Only use examples you have permission to share (the sample tasks are fictional; Maya is a composite persona)
 

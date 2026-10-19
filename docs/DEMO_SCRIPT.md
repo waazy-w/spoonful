@@ -1,4 +1,7 @@
-# Demo video script (target 2:30, max 3:00)
+# Demo video script
+
+> **A finished video already exists:** `docs/spoonful-demo.mp4` (2:19, 1280×720, narrated, captions burned in; `spoonful-demo.srt` has the captions for YouTube). It was recorded automatically by `docs/video/record-demo.js` from the narration in `docs/video/scenes.json`.
+> Want your own voice? Record over it using the plan below. A human voice usually lands better with judges.
 
 **Setup before recording:** open the deployed site in a clean browser profile (or Settings → Delete everything), at 1280×800 and 125% zoom. Turn on a screen reader (NVDA on Windows / VoiceOver on Mac) only for scene 6. Record with OBS or Loom, and add captions (YouTube auto-captions, then fix them, because the video itself should be accessible).
 
