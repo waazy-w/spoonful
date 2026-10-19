@@ -37,7 +37,7 @@ Disabled and chronically ill people already have a language for this: **spoon th
 
 ## What it does
 
-1. **Check in.** "How much energy do you have right now?" Pick *Running on empty / Low / Okay / Good / Great*, or set an exact number of spoons.
+1. **Check in.** "How much energy do you have right now?" Pick *Empty (2) / Low (4) / Okay (6) / Good (8) / Great (10)* spoons, or set an exact number.
 2. **Add tasks with an energy cost** from Tiny (1) to Huge (5), plus an optional due date and a "must happen today" flag.
 3. **Get a plan that fits.** Must-dos and near deadlines come first, then the smallest tasks. One spoon is always **held in reserve** so the plan never spends you to zero.
 4. **"Not today, and that's okay."** Every deferred task says *why*: no room today, rest day, or too big. Too-big tasks get a **Break it down** button.
@@ -61,6 +61,7 @@ Disabled and chronically ill people already have a language for this: **spoon th
 - **A pure planning engine** (`js/planner.js`) shared by the browser and the Node tests: greedy, priority-ordered selection with a reserve buffer and partial step planning.
 - **16 unit tests** (`node:test`) cover the reserve, budget limits, priority order, partial planning, deferral reasons and date logic.
 - **A headless-Chrome end-to-end test** (puppeteer-core) walks the full user journey and runs axe-core in every state.
+- **A calm, app-style design:** sidebar navigation on desktop, a bottom tab bar on phones, and light, dark and high-contrast themes built from shared design tokens.
 - **A Progressive Web App:** a service-worker app-shell cache, an installable manifest, and localStorage persistence that resets the check-in each new day.
 - **The Web Speech API** for read-aloud in Focus mode.
 
@@ -101,7 +102,7 @@ Disabled and chronically ill people already have a language for this: **spoon th
 ## Pre-existing work & AI disclosure
 
 - **Concept:** "Spoon theory" is Christine Miserandino's (2003). We built on the idea; we did not invent it.
-- **Font:** Atkinson Hyperlegible (Braille Institute, SIL Open Font License) via Google Fonts.
+- **Fonts:** Atkinson Hyperlegible (Braille Institute) and Fraunces (Undercase Type), both under the SIL Open Font License, via Google Fonts.
 - **Testing libraries** (dev only, not shipped): puppeteer-core, axe-core.
 - **AI assistance:** Built with Claude (Anthropic) through Claude Code. The AI helped generate and score the 10 candidate ideas against the rubric, wrote most of the code and tests, ran the automated browser and accessibility tests, drafted this write-up, and produced the demo video. The video's narration is a synthetic text-to-speech voice (Microsoft Zira), and it was recorded automatically from the real app. We chose the idea, reviewed the code and results, and are responsible for the submission. The app itself uses **no AI at runtime**: step suggestions are hand-written templates.
 - All code was written during the hackathon period. No pre-existing project code was used.
