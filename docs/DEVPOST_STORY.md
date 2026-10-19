@@ -91,4 +91,4 @@ Disabled and chronically ill people already have a language for this: **spoon th
 
 ## Team
 
-- saaz (GitHub: [waazy-w](https://github.com/waazy-w))
+- **Saaz**: idea, design, development and testing (GitHub: [waazy-w](https://github.com/waazy-w))

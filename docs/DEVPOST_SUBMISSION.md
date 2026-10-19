@@ -1,6 +1,6 @@
 # Devpost submission: copy-paste ready
 
-> Ready to paste. The only blanks left are **Team** (your Devpost username) and the optional user-testing line. Every section the brief asks for is covered: problem, intended user, solution, tools, limitations, what you learned, pre-existing work, AI assistance.
+> Ready to paste. The only blank left is the optional user-testing line. Every section the brief asks for is covered: problem, intended user, solution, tools, limitations, what you learned, pre-existing work, AI assistance.
 
 ---
 
@@ -109,4 +109,4 @@ Disabled and chronically ill people already have a language for this: **spoon th
 
 ## Team
 
-- saaz (GitHub: [waazy-w](https://github.com/waazy-w)), Devpost: `[your Devpost username]`
+- **Saaz**: idea, design, development and testing (GitHub: [waazy-w](https://github.com/waazy-w))

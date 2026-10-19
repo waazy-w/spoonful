@@ -81,6 +81,10 @@ tests/              unit tests + browser e2e/accessibility test
 - Data lives in one browser. There is no sync across devices; use backup/restore.
 - Tested with axe-core and keyboard-only use. Not yet tested with real screen-reader users or people with chronic illness.
 
+## Team
+
+- **Saaz**: idea, design, development and testing (GitHub: [waazy-w](https://github.com/waazy-w))
+
 ## License
 
-MIT
+MIT © 2026 Saaz
