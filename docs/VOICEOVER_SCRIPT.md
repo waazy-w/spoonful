@@ -9,7 +9,7 @@ Tips: smile while you talk (it changes your voice), pause for a beat between sce
 
 | Time | When you see… | Say |
 |---|---|---|
-| 0:00 | Green title card, "Spoonful" | "Hi, I'm [your name]. Every to-do app assumes you have the same energy every day. For students living with chronic illness, ADHD or depression, that just isn't true. On a bad day, the list doesn't shrink. It just turns into guilt." |
+| 0:00 | Green title card, "Spoonful" | "Hi, I'm Saaz. Every to-do app assumes you have the same energy every day. For students living with chronic illness, ADHD or depression, that just isn't true. On a bad day, the list doesn't shrink. It just turns into guilt." |
 | 0:19 | The app appears, with "Good morning" | "Spoonful is built on spoon theory. You get a limited number of spoons each day, and every task costs some. So it starts with one question: how much energy do you have right now?" |
 | 0:33 | Example tasks load, "Great" is picked | "Here's a typical student week. On a great day, Spoonful plans the must-dos and deadlines first: the doctor's appointment, the email due today, even the big lab report. And it always keeps one spoon in reserve." |
 | 0:50 | "Low" is picked; the plan shrinks | "Same list, rough day. Now only two things fit. Everything else is still here, with a reason: your energy is already spoken for, this can wait. No red badges. No shame." |
