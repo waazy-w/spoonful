@@ -1,0 +1,13 @@
+{
+  "name": "Spoonful: plan by energy",
+  "short_name": "Spoonful",
+  "description": "An accessible day planner for people whose energy changes day to day.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f3ee",
+  "theme_color": "#2f5d50",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
